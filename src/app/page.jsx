@@ -496,7 +496,7 @@ function AboutMeWidget({ className = "" }) {
                     </p>
                     <div className="w-full h-48 bg-gray-800/50 rounded-lg overflow-hidden">
                       <img
-                        src="/images/farrel-1.jpg"
+                        src="/images/farrel-1.JPG"
                         alt="Background"
                         className="w-full h-full object-cover"
                       />
