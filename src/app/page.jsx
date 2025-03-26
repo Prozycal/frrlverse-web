@@ -29,34 +29,67 @@ export default function Home() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [cursorVariant, setCursorVariant] = useState("default");
   const [isHovering, setIsHovering] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(false);
 
   useEffect(() => {
-    setIsLoading(false);
+    // Check if device is desktop (width > 768px)
+    const checkDevice = () => {
+      setIsDesktop(window.innerWidth > 768);
+    };
+    
+    // Initial check
+    checkDevice();
+    
+    // Add resize listener
+    window.addEventListener('resize', checkDevice);
 
-    const timer = setInterval(() => {
+    // Simulate loading time
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 2000);
+
+    const timeInterval = setInterval(() => {
       setCurrentTime(new Date());
     }, 1000);
 
     const handleMouseMove = (e) => {
-      setMousePosition({
-        x: e.clientX,
-        y: e.clientY
-      });
+      if (isDesktop) {
+        setMousePosition({
+          x: e.clientX,
+          y: e.clientY
+        });
+      }
     };
 
     const handleMouseEnter = () => {
-      setIsHovering(true);
+      if (isDesktop) {
+        setIsHovering(true);
+        document.body.style.cursor = 'none';
+        document.documentElement.style.cursor = 'none';
+      }
     };
 
     const handleMouseLeave = () => {
-      setIsHovering(false);
+      if (isDesktop) {
+        setIsHovering(false);
+        document.body.style.cursor = 'none';
+        document.documentElement.style.cursor = 'none';
+      }
     };
 
-    // Hide default cursor
-    document.body.style.cursor = 'none';
+    // Hide default cursor globally only on desktop
+    if (isDesktop) {
+      document.body.style.cursor = 'none';
+      document.documentElement.style.cursor = 'none';
+      document.querySelectorAll('*').forEach(element => {
+        element.style.cursor = 'none';
+      });
+    }
 
     // Add hover detection for interactive elements
     const handleElementHover = (e) => {
+      if (!isDesktop) return;
+      
       const target = e.target;
       if (
         target.tagName === 'A' ||
@@ -68,8 +101,14 @@ export default function Home() {
         target.closest('.cursor-pointer')
       ) {
         setIsHovering(true);
+        document.body.style.cursor = 'none';
+        document.documentElement.style.cursor = 'none';
+        target.style.cursor = 'none';
       } else {
         setIsHovering(false);
+        document.body.style.cursor = 'none';
+        document.documentElement.style.cursor = 'none';
+        target.style.cursor = 'none';
       }
     };
 
@@ -78,16 +117,30 @@ export default function Home() {
     window.addEventListener('mouseleave', handleMouseLeave);
     document.addEventListener('mouseover', handleElementHover);
 
+    // Add global style to hide cursor only on desktop
+    const style = document.createElement('style');
+    style.textContent = `
+      @media (min-width: 769px) {
+        * {
+          cursor: none !important;
+        }
+      }
+    `;
+    document.head.appendChild(style);
+
     return () => {
-      clearInterval(timer);
+      clearTimeout(timer);
+      clearInterval(timeInterval);
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseenter', handleMouseEnter);
       window.removeEventListener('mouseleave', handleMouseLeave);
       document.removeEventListener('mouseover', handleElementHover);
-      // Restore default cursor on unmount
+      window.removeEventListener('resize', checkDevice);
       document.body.style.cursor = 'default';
+      document.documentElement.style.cursor = 'default';
+      style.remove();
     };
-  }, []);
+  }, [isDesktop]);
 
   if (isLoading) {
     return <LoadingScreen />;
@@ -100,35 +153,39 @@ export default function Home() {
       transition={{ duration: 0.8 }}
       className="min-h-screen bg-gray-950 text-white p-3 md:p-6 lg:p-8 relative overflow-hidden flex flex-col"
     >
-      {/* Custom Cursor */}
-      <motion.div
-        className="fixed top-0 left-0 w-3 h-3 bg-white rounded-sm pointer-events-none z-50 mix-blend-difference"
-        animate={{
-          x: mousePosition.x - 6,
-          y: mousePosition.y - 6,
-          rotate: 45,
-          scale: isHovering ? 1.2 : 1,
-        }}
-        transition={{
-          type: "spring",
-          damping: 30,
-          stiffness: 300,
-        }}
-      />
-      <motion.div
-        className="fixed top-0 left-0 w-6 h-6 border border-white/50 rounded-sm pointer-events-none z-50 mix-blend-difference"
-        animate={{
-          x: mousePosition.x - 12,
-          y: mousePosition.y - 12,
-          scale: isHovering ? 1.5 : 1,
-          rotate: 45,
-        }}
-        transition={{
-          type: "spring",
-          damping: 20,
-          stiffness: 200,
-        }}
-      />
+      {/* Custom Cursor - Only show on desktop */}
+      {isDesktop && (
+        <>
+          <motion.div
+            className="fixed top-0 left-0 w-3 h-3 bg-white rounded-sm pointer-events-none z-50 mix-blend-difference"
+            animate={{
+              x: mousePosition.x - 6,
+              y: mousePosition.y - 6,
+              rotate: 45,
+              scale: isHovering ? 1.2 : 1,
+            }}
+            transition={{
+              type: "spring",
+              damping: 30,
+              stiffness: 300,
+            }}
+          />
+          <motion.div
+            className="fixed top-0 left-0 w-6 h-6 border border-white/50 rounded-sm pointer-events-none z-50 mix-blend-difference"
+            animate={{
+              x: mousePosition.x - 12,
+              y: mousePosition.y - 12,
+              scale: isHovering ? 1.5 : 1,
+              rotate: 45,
+            }}
+            transition={{
+              type: "spring",
+              damping: 20,
+              stiffness: 200,
+            }}
+          />
+        </>
+      )}
 
       {/* Enhanced Background Effects */}
       <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
@@ -1068,6 +1125,12 @@ function CertificatesWidget({ className = "" }) {
       organization: "PT. ITHO Indostock",
       date: "17 Mei 2024 ",
       image: "/images/ses.jpg"
+    },
+    {
+      title: "Grand Finalis Website SMK - Micro Influencer Competition GSS 2024",
+      organization: "Yayasan Sagasitas Indonesia",
+      date: "1 Oktober 2024",
+      image: "/images/sagasitas.jpeg"
     },
     {
       title: "Belajar Dasar Pemrograman Web",

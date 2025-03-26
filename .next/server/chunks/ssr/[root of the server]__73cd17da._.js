@@ -40,52 +40,102 @@ function Home() {
     });
     const [cursorVariant, setCursorVariant] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])("default");
     const [isHovering, setIsHovering] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(false);
+    const [isDesktop, setIsDesktop] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(false);
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useEffect"])(()=>{
-        setIsLoading(false);
-        const timer = setInterval(()=>{
+        // Check if device is desktop (width > 768px)
+        const checkDevice = ()=>{
+            setIsDesktop(window.innerWidth > 768);
+        };
+        // Initial check
+        checkDevice();
+        // Add resize listener
+        window.addEventListener('resize', checkDevice);
+        // Simulate loading time
+        const timer = setTimeout(()=>{
+            setIsLoading(false);
+        }, 2000);
+        const timeInterval = setInterval(()=>{
             setCurrentTime(new Date());
         }, 1000);
         const handleMouseMove = (e)=>{
-            setMousePosition({
-                x: e.clientX,
-                y: e.clientY
-            });
+            if (isDesktop) {
+                setMousePosition({
+                    x: e.clientX,
+                    y: e.clientY
+                });
+            }
         };
         const handleMouseEnter = ()=>{
-            setIsHovering(true);
+            if (isDesktop) {
+                setIsHovering(true);
+                document.body.style.cursor = 'none';
+                document.documentElement.style.cursor = 'none';
+            }
         };
         const handleMouseLeave = ()=>{
-            setIsHovering(false);
+            if (isDesktop) {
+                setIsHovering(false);
+                document.body.style.cursor = 'none';
+                document.documentElement.style.cursor = 'none';
+            }
         };
-        // Hide default cursor
-        document.body.style.cursor = 'none';
+        // Hide default cursor globally only on desktop
+        if (isDesktop) {
+            document.body.style.cursor = 'none';
+            document.documentElement.style.cursor = 'none';
+            document.querySelectorAll('*').forEach((element)=>{
+                element.style.cursor = 'none';
+            });
+        }
         // Add hover detection for interactive elements
         const handleElementHover = (e)=>{
+            if (!isDesktop) return;
             const target = e.target;
             if (target.tagName === 'A' || target.tagName === 'BUTTON' || target.closest('button') || target.closest('a') || target.closest('[role="button"]') || target.closest('[onClick]') || target.closest('.cursor-pointer')) {
                 setIsHovering(true);
+                document.body.style.cursor = 'none';
+                document.documentElement.style.cursor = 'none';
+                target.style.cursor = 'none';
             } else {
                 setIsHovering(false);
+                document.body.style.cursor = 'none';
+                document.documentElement.style.cursor = 'none';
+                target.style.cursor = 'none';
             }
         };
         window.addEventListener('mousemove', handleMouseMove);
         window.addEventListener('mouseenter', handleMouseEnter);
         window.addEventListener('mouseleave', handleMouseLeave);
         document.addEventListener('mouseover', handleElementHover);
+        // Add global style to hide cursor only on desktop
+        const style = document.createElement('style');
+        style.textContent = `
+      @media (min-width: 769px) {
+        * {
+          cursor: none !important;
+        }
+      }
+    `;
+        document.head.appendChild(style);
         return ()=>{
-            clearInterval(timer);
+            clearTimeout(timer);
+            clearInterval(timeInterval);
             window.removeEventListener('mousemove', handleMouseMove);
             window.removeEventListener('mouseenter', handleMouseEnter);
             window.removeEventListener('mouseleave', handleMouseLeave);
             document.removeEventListener('mouseover', handleElementHover);
-            // Restore default cursor on unmount
+            window.removeEventListener('resize', checkDevice);
             document.body.style.cursor = 'default';
+            document.documentElement.style.cursor = 'default';
+            style.remove();
         };
-    }, []);
+    }, [
+        isDesktop
+    ]);
     if (isLoading) {
         return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(LoadingScreen, {}, void 0, false, {
             fileName: "[project]/src/app/page.jsx",
-            lineNumber: 93,
+            lineNumber: 146,
             columnNumber: 12
         }, this);
     }
@@ -101,42 +151,46 @@ function Home() {
         },
         className: "min-h-screen bg-gray-950 text-white p-3 md:p-6 lg:p-8 relative overflow-hidden flex flex-col",
         children: [
-            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$framer$2d$motion$2f$dist$2f$es$2f$render$2f$components$2f$motion$2f$proxy$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["motion"].div, {
-                className: "fixed top-0 left-0 w-3 h-3 bg-white rounded-sm pointer-events-none z-50 mix-blend-difference",
-                animate: {
-                    x: mousePosition.x - 6,
-                    y: mousePosition.y - 6,
-                    rotate: 45,
-                    scale: isHovering ? 1.2 : 1
-                },
-                transition: {
-                    type: "spring",
-                    damping: 30,
-                    stiffness: 300
-                }
-            }, void 0, false, {
-                fileName: "[project]/src/app/page.jsx",
-                lineNumber: 104,
-                columnNumber: 7
-            }, this),
-            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$framer$2d$motion$2f$dist$2f$es$2f$render$2f$components$2f$motion$2f$proxy$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["motion"].div, {
-                className: "fixed top-0 left-0 w-6 h-6 border border-white/50 rounded-sm pointer-events-none z-50 mix-blend-difference",
-                animate: {
-                    x: mousePosition.x - 12,
-                    y: mousePosition.y - 12,
-                    scale: isHovering ? 1.5 : 1,
-                    rotate: 45
-                },
-                transition: {
-                    type: "spring",
-                    damping: 20,
-                    stiffness: 200
-                }
-            }, void 0, false, {
-                fileName: "[project]/src/app/page.jsx",
-                lineNumber: 118,
-                columnNumber: 7
-            }, this),
+            isDesktop && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Fragment"], {
+                children: [
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$framer$2d$motion$2f$dist$2f$es$2f$render$2f$components$2f$motion$2f$proxy$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["motion"].div, {
+                        className: "fixed top-0 left-0 w-3 h-3 bg-white rounded-sm pointer-events-none z-50 mix-blend-difference",
+                        animate: {
+                            x: mousePosition.x - 6,
+                            y: mousePosition.y - 6,
+                            rotate: 45,
+                            scale: isHovering ? 1.2 : 1
+                        },
+                        transition: {
+                            type: "spring",
+                            damping: 30,
+                            stiffness: 300
+                        }
+                    }, void 0, false, {
+                        fileName: "[project]/src/app/page.jsx",
+                        lineNumber: 159,
+                        columnNumber: 11
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$framer$2d$motion$2f$dist$2f$es$2f$render$2f$components$2f$motion$2f$proxy$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["motion"].div, {
+                        className: "fixed top-0 left-0 w-6 h-6 border border-white/50 rounded-sm pointer-events-none z-50 mix-blend-difference",
+                        animate: {
+                            x: mousePosition.x - 12,
+                            y: mousePosition.y - 12,
+                            scale: isHovering ? 1.5 : 1,
+                            rotate: 45
+                        },
+                        transition: {
+                            type: "spring",
+                            damping: 20,
+                            stiffness: 200
+                        }
+                    }, void 0, false, {
+                        fileName: "[project]/src/app/page.jsx",
+                        lineNumber: 173,
+                        columnNumber: 11
+                    }, this)
+                ]
+            }, void 0, true),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                 className: "fixed inset-0 z-0 overflow-hidden pointer-events-none",
                 children: [
@@ -161,7 +215,7 @@ function Home() {
                         }
                     }, void 0, false, {
                         fileName: "[project]/src/app/page.jsx",
-                        lineNumber: 136,
+                        lineNumber: 193,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$framer$2d$motion$2f$dist$2f$es$2f$render$2f$components$2f$motion$2f$proxy$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["motion"].div, {
@@ -186,7 +240,7 @@ function Home() {
                         }
                     }, void 0, false, {
                         fileName: "[project]/src/app/page.jsx",
-                        lineNumber: 149,
+                        lineNumber: 206,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$framer$2d$motion$2f$dist$2f$es$2f$render$2f$components$2f$motion$2f$proxy$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["motion"].div, {
@@ -202,14 +256,14 @@ function Home() {
                         }
                     }, void 0, false, {
                         fileName: "[project]/src/app/page.jsx",
-                        lineNumber: 164,
+                        lineNumber: 221,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                         className: "absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:50px_50px] [mask-image:radial-gradient(ellipse_80%_80%_at_50%_50%,black,transparent)]"
                     }, void 0, false, {
                         fileName: "[project]/src/app/page.jsx",
-                        lineNumber: 178,
+                        lineNumber: 235,
                         columnNumber: 9
                     }, this),
                     [
@@ -241,13 +295,13 @@ function Home() {
                             }
                         }, i, false, {
                             fileName: "[project]/src/app/page.jsx",
-                            lineNumber: 182,
+                            lineNumber: 239,
                             columnNumber: 11
                         }, this))
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/app/page.jsx",
-                lineNumber: 134,
+                lineNumber: 191,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -255,7 +309,7 @@ function Home() {
                 children: [
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(Header, {}, void 0, false, {
                         fileName: "[project]/src/app/page.jsx",
-                        lineNumber: 205,
+                        lineNumber: 262,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("main", {
@@ -266,42 +320,42 @@ function Home() {
                                     className: "md:col-span-1 row-span-1"
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/page.jsx",
-                                    lineNumber: 208,
+                                    lineNumber: 265,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(AboutMeWidget, {
                                     className: "md:col-span-1 row-span-1"
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/page.jsx",
-                                    lineNumber: 209,
+                                    lineNumber: 266,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(SkillsWidget, {
                                     className: "md:col-span-1 row-span-1"
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/page.jsx",
-                                    lineNumber: 210,
+                                    lineNumber: 267,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(ProjectsWidget, {
                                     className: "md:col-span-2 row-span-1"
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/page.jsx",
-                                    lineNumber: 211,
+                                    lineNumber: 268,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(CertificatesWidget, {
                                     className: "md:col-span-1 row-span-1"
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/page.jsx",
-                                    lineNumber: 212,
+                                    lineNumber: 269,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(ContactsWidget, {
                                     className: "md:col-span-1 row-span-1"
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/page.jsx",
-                                    lineNumber: 213,
+                                    lineNumber: 270,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(DateTimeWidget, {
@@ -309,56 +363,56 @@ function Home() {
                                     className: "md:col-span-1 row-span-1"
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/page.jsx",
-                                    lineNumber: 214,
+                                    lineNumber: 271,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(QuoteWidget, {
                                     className: "md:col-span-1 row-span-1"
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/page.jsx",
-                                    lineNumber: 215,
+                                    lineNumber: 272,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(SocialLinksWidget, {
                                     className: "md:col-span-2 row-span-1"
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/page.jsx",
-                                    lineNumber: 216,
+                                    lineNumber: 273,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(BlogWidget, {
                                     className: "md:col-span-1 row-span-1"
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/page.jsx",
-                                    lineNumber: 217,
+                                    lineNumber: 274,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/app/page.jsx",
-                            lineNumber: 207,
+                            lineNumber: 264,
                             columnNumber: 11
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/src/app/page.jsx",
-                        lineNumber: 206,
+                        lineNumber: 263,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(Footer, {}, void 0, false, {
                         fileName: "[project]/src/app/page.jsx",
-                        lineNumber: 220,
+                        lineNumber: 277,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/app/page.jsx",
-                lineNumber: 204,
+                lineNumber: 261,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/src/app/page.jsx",
-        lineNumber: 97,
+        lineNumber: 150,
         columnNumber: 5
     }, this);
 }
@@ -401,23 +455,23 @@ function Header() {
                                     className: "absolute -bottom-1 left-0 w-full h-[2px] bg-gradient-to-r from-gray-400 to-gray-600 transform scale-x-0 origin-left animate-expandLine"
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/page.jsx",
-                                    lineNumber: 244,
+                                    lineNumber: 301,
                                     columnNumber: 15
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/app/page.jsx",
-                            lineNumber: 242,
+                            lineNumber: 299,
                             columnNumber: 13
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/src/app/page.jsx",
-                        lineNumber: 241,
+                        lineNumber: 298,
                         columnNumber: 11
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/src/app/page.jsx",
-                    lineNumber: 236,
+                    lineNumber: 293,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$framer$2d$motion$2f$dist$2f$es$2f$render$2f$components$2f$motion$2f$proxy$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["motion"].p, {
@@ -437,18 +491,18 @@ function Header() {
                     children: "Welcome to my digital space"
                 }, void 0, false, {
                     fileName: "[project]/src/app/page.jsx",
-                    lineNumber: 249,
+                    lineNumber: 306,
                     columnNumber: 9
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/src/app/page.jsx",
-            lineNumber: 235,
+            lineNumber: 292,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/src/app/page.jsx",
-        lineNumber: 229,
+        lineNumber: 286,
         columnNumber: 5
     }, this);
 }
@@ -460,12 +514,12 @@ function Footer() {
             children: "© 2025 Muhammad Farrel Rabbani. All rights reserved."
         }, void 0, false, {
             fileName: "[project]/src/app/page.jsx",
-            lineNumber: 266,
+            lineNumber: 323,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/src/app/page.jsx",
-        lineNumber: 265,
+        lineNumber: 322,
         columnNumber: 5
     }, this);
 }
@@ -476,7 +530,7 @@ function BentoGrid({ children }) {
         children: children
     }, void 0, false, {
         fileName: "[project]/src/app/page.jsx",
-        lineNumber: 274,
+        lineNumber: 331,
         columnNumber: 5
     }, this);
 }
@@ -509,7 +563,7 @@ function BentoCard({ children, className = "", onClick }) {
                 className: "absolute top-0 left-0 w-full h-full bg-gradient-to-br from-gray-800/20 via-transparent to-gray-700/20 opacity-50"
             }, void 0, false, {
                 fileName: "[project]/src/app/page.jsx",
-                lineNumber: 298,
+                lineNumber: 355,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -517,13 +571,13 @@ function BentoCard({ children, className = "", onClick }) {
                 children: children
             }, void 0, false, {
                 fileName: "[project]/src/app/page.jsx",
-                lineNumber: 299,
+                lineNumber: 356,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/src/app/page.jsx",
-        lineNumber: 288,
+        lineNumber: 345,
         columnNumber: 5
     }, this);
 }
@@ -570,12 +624,12 @@ function ProfileWidget({ className = "" }) {
                                     className: "w-full h-full object-cover rounded-3xl border-2 border-gray-400/30"
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/page.jsx",
-                                    lineNumber: 335,
+                                    lineNumber: 392,
                                     columnNumber: 15
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/src/app/page.jsx",
-                                lineNumber: 334,
+                                lineNumber: 391,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -586,23 +640,23 @@ function ProfileWidget({ className = "" }) {
                                     className: "w-full h-full object-cover rounded-3xl border-2 border-gray-400/30"
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/page.jsx",
-                                    lineNumber: 343,
+                                    lineNumber: 400,
                                     columnNumber: 15
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/src/app/page.jsx",
-                                lineNumber: 342,
+                                lineNumber: 399,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/app/page.jsx",
-                        lineNumber: 326,
+                        lineNumber: 383,
                         columnNumber: 11
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/src/app/page.jsx",
-                    lineNumber: 325,
+                    lineNumber: 382,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
@@ -610,7 +664,7 @@ function ProfileWidget({ className = "" }) {
                     children: "Muhammad Farrel Rabbani"
                 }, void 0, false, {
                     fileName: "[project]/src/app/page.jsx",
-                    lineNumber: 351,
+                    lineNumber: 408,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -640,33 +694,33 @@ function ProfileWidget({ className = "" }) {
                                 children: titles[currentTitleIndex]
                             }, void 0, false, {
                                 fileName: "[project]/src/app/page.jsx",
-                                lineNumber: 365,
+                                lineNumber: 422,
                                 columnNumber: 15
                             }, this)
                         }, currentTitleIndex, false, {
                             fileName: "[project]/src/app/page.jsx",
-                            lineNumber: 354,
+                            lineNumber: 411,
                             columnNumber: 13
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/src/app/page.jsx",
-                        lineNumber: 353,
+                        lineNumber: 410,
                         columnNumber: 11
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/src/app/page.jsx",
-                    lineNumber: 352,
+                    lineNumber: 409,
                     columnNumber: 9
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/src/app/page.jsx",
-            lineNumber: 324,
+            lineNumber: 381,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/src/app/page.jsx",
-        lineNumber: 323,
+        lineNumber: 380,
         columnNumber: 5
     }, this);
 }
@@ -700,7 +754,7 @@ function AboutMeWidget({ className = "" }) {
                                     className: "text-gray-400 text-lg mr-2"
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/page.jsx",
-                                    lineNumber: 399,
+                                    lineNumber: 456,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
@@ -708,13 +762,13 @@ function AboutMeWidget({ className = "" }) {
                                     children: "About Me"
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/page.jsx",
-                                    lineNumber: 400,
+                                    lineNumber: 457,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/app/page.jsx",
-                            lineNumber: 398,
+                            lineNumber: 455,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -731,12 +785,12 @@ function AboutMeWidget({ className = "" }) {
                                                 className: "w-full h-full object-cover"
                                             }, void 0, false, {
                                                 fileName: "[project]/src/app/page.jsx",
-                                                lineNumber: 405,
+                                                lineNumber: 462,
                                                 columnNumber: 17
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/src/app/page.jsx",
-                                            lineNumber: 404,
+                                            lineNumber: 461,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -744,13 +798,13 @@ function AboutMeWidget({ className = "" }) {
                                             children: "Passionate Front End Developer with expertise in modern web technologies. Currently in Network information systems and applications major at SMK Negeri 2 Depok Sleman."
                                         }, void 0, false, {
                                             fileName: "[project]/src/app/page.jsx",
-                                            lineNumber: 411,
+                                            lineNumber: 468,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/app/page.jsx",
-                                    lineNumber: 403,
+                                    lineNumber: 460,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -758,24 +812,24 @@ function AboutMeWidget({ className = "" }) {
                                     children: "Click to learn more about my journey"
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/page.jsx",
-                                    lineNumber: 416,
+                                    lineNumber: 473,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/app/page.jsx",
-                            lineNumber: 402,
+                            lineNumber: 459,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/src/app/page.jsx",
-                    lineNumber: 397,
+                    lineNumber: 454,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/src/app/page.jsx",
-                lineNumber: 393,
+                lineNumber: 450,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$framer$2d$motion$2f$dist$2f$es$2f$components$2f$AnimatePresence$2f$index$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["AnimatePresence"], {
@@ -822,7 +876,7 @@ function AboutMeWidget({ className = "" }) {
                                         children: "About Me"
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/page.jsx",
-                                        lineNumber: 441,
+                                        lineNumber: 498,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -841,23 +895,23 @@ function AboutMeWidget({ className = "" }) {
                                                 d: "M6 18L18 6M6 6l12 12"
                                             }, void 0, false, {
                                                 fileName: "[project]/src/app/page.jsx",
-                                                lineNumber: 453,
+                                                lineNumber: 510,
                                                 columnNumber: 21
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/src/app/page.jsx",
-                                            lineNumber: 446,
+                                            lineNumber: 503,
                                             columnNumber: 19
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/page.jsx",
-                                        lineNumber: 442,
+                                        lineNumber: 499,
                                         columnNumber: 17
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/app/page.jsx",
-                                lineNumber: 440,
+                                lineNumber: 497,
                                 columnNumber: 15
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -872,7 +926,7 @@ function AboutMeWidget({ className = "" }) {
                                                     children: "Background"
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/app/page.jsx",
-                                                    lineNumber: 465,
+                                                    lineNumber: 522,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -880,7 +934,7 @@ function AboutMeWidget({ className = "" }) {
                                                     children: "I am a passionate Front End Developer currently in Network information systems and applications major at SMK Negeri 2 Depok Sleman. My journey in web development started with a curiosity about creating beautiful and functional websites, which led me to explore various technologies and frameworks."
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/app/page.jsx",
-                                                    lineNumber: 466,
+                                                    lineNumber: 523,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -891,18 +945,18 @@ function AboutMeWidget({ className = "" }) {
                                                         className: "w-full h-full object-cover"
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/app/page.jsx",
-                                                        lineNumber: 472,
+                                                        lineNumber: 529,
                                                         columnNumber: 23
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/app/page.jsx",
-                                                    lineNumber: 471,
+                                                    lineNumber: 528,
                                                     columnNumber: 21
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/src/app/page.jsx",
-                                            lineNumber: 464,
+                                            lineNumber: 521,
                                             columnNumber: 19
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -912,7 +966,7 @@ function AboutMeWidget({ className = "" }) {
                                                     children: "Interests"
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/app/page.jsx",
-                                                    lineNumber: 481,
+                                                    lineNumber: 538,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -920,7 +974,7 @@ function AboutMeWidget({ className = "" }) {
                                                     children: "I have a keen interest in modern web technologies, particularly React and its ecosystem. I enjoy creating responsive and user-friendly interfaces, and I'm always excited to learn about new tools and techniques in web development."
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/app/page.jsx",
-                                                    lineNumber: 482,
+                                                    lineNumber: 539,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -931,18 +985,18 @@ function AboutMeWidget({ className = "" }) {
                                                         className: "w-full h-full object-cover"
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/app/page.jsx",
-                                                        lineNumber: 488,
+                                                        lineNumber: 545,
                                                         columnNumber: 23
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/app/page.jsx",
-                                                    lineNumber: 487,
+                                                    lineNumber: 544,
                                                     columnNumber: 21
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/src/app/page.jsx",
-                                            lineNumber: 480,
+                                            lineNumber: 537,
                                             columnNumber: 19
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -952,7 +1006,7 @@ function AboutMeWidget({ className = "" }) {
                                                     children: "Goals"
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/app/page.jsx",
-                                                    lineNumber: 497,
+                                                    lineNumber: 554,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -960,7 +1014,7 @@ function AboutMeWidget({ className = "" }) {
                                                     children: "My goal is to become a full-stack developer who can create comprehensive web applications that solve real-world problems. I'm constantly working on improving my skills and contributing to the developer community."
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/app/page.jsx",
-                                                    lineNumber: 498,
+                                                    lineNumber: 555,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -971,45 +1025,45 @@ function AboutMeWidget({ className = "" }) {
                                                         className: "w-full h-full object-cover"
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/app/page.jsx",
-                                                        lineNumber: 504,
+                                                        lineNumber: 561,
                                                         columnNumber: 23
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/app/page.jsx",
-                                                    lineNumber: 503,
+                                                    lineNumber: 560,
                                                     columnNumber: 21
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/src/app/page.jsx",
-                                            lineNumber: 496,
+                                            lineNumber: 553,
                                             columnNumber: 19
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/app/page.jsx",
-                                    lineNumber: 463,
+                                    lineNumber: 520,
                                     columnNumber: 17
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/src/app/page.jsx",
-                                lineNumber: 462,
+                                lineNumber: 519,
                                 columnNumber: 15
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/app/page.jsx",
-                        lineNumber: 432,
+                        lineNumber: 489,
                         columnNumber: 13
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/src/app/page.jsx",
-                    lineNumber: 425,
+                    lineNumber: 482,
                     columnNumber: 11
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/src/app/page.jsx",
-                lineNumber: 423,
+                lineNumber: 480,
                 columnNumber: 7
             }, this)
         ]
@@ -1180,7 +1234,7 @@ function SkillsWidget({ className = "" }) {
                                     className: "text-gray-400 text-lg mr-2"
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/page.jsx",
-                                    lineNumber: 595,
+                                    lineNumber: 652,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
@@ -1188,13 +1242,13 @@ function SkillsWidget({ className = "" }) {
                                     children: "Skills"
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/page.jsx",
-                                    lineNumber: 596,
+                                    lineNumber: 653,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/app/page.jsx",
-                            lineNumber: 594,
+                            lineNumber: 651,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1211,12 +1265,12 @@ function SkillsWidget({ className = "" }) {
                                                 className: "w-full h-full object-cover"
                                             }, void 0, false, {
                                                 fileName: "[project]/src/app/page.jsx",
-                                                lineNumber: 601,
+                                                lineNumber: 658,
                                                 columnNumber: 17
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/src/app/page.jsx",
-                                            lineNumber: 600,
+                                            lineNumber: 657,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1233,23 +1287,23 @@ function SkillsWidget({ className = "" }) {
                                                         children: tech
                                                     }, i, false, {
                                                         fileName: "[project]/src/app/page.jsx",
-                                                        lineNumber: 610,
+                                                        lineNumber: 667,
                                                         columnNumber: 21
                                                     }, this))
                                             }, void 0, false, {
                                                 fileName: "[project]/src/app/page.jsx",
-                                                lineNumber: 608,
+                                                lineNumber: 665,
                                                 columnNumber: 17
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/src/app/page.jsx",
-                                            lineNumber: 607,
+                                            lineNumber: 664,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/app/page.jsx",
-                                    lineNumber: 599,
+                                    lineNumber: 656,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1257,24 +1311,24 @@ function SkillsWidget({ className = "" }) {
                                     children: "Click to view all skills"
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/page.jsx",
-                                    lineNumber: 617,
+                                    lineNumber: 674,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/app/page.jsx",
-                            lineNumber: 598,
+                            lineNumber: 655,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/src/app/page.jsx",
-                    lineNumber: 593,
+                    lineNumber: 650,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/src/app/page.jsx",
-                lineNumber: 589,
+                lineNumber: 646,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$framer$2d$motion$2f$dist$2f$es$2f$components$2f$AnimatePresence$2f$index$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["AnimatePresence"], {
@@ -1321,7 +1375,7 @@ function SkillsWidget({ className = "" }) {
                                         children: "Skills & Expertise"
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/page.jsx",
-                                        lineNumber: 642,
+                                        lineNumber: 699,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -1340,23 +1394,23 @@ function SkillsWidget({ className = "" }) {
                                                 d: "M6 18L18 6M6 6l12 12"
                                             }, void 0, false, {
                                                 fileName: "[project]/src/app/page.jsx",
-                                                lineNumber: 654,
+                                                lineNumber: 711,
                                                 columnNumber: 21
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/src/app/page.jsx",
-                                            lineNumber: 647,
+                                            lineNumber: 704,
                                             columnNumber: 19
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/page.jsx",
-                                        lineNumber: 643,
+                                        lineNumber: 700,
                                         columnNumber: 17
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/app/page.jsx",
-                                lineNumber: 641,
+                                lineNumber: 698,
                                 columnNumber: 15
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1372,7 +1426,7 @@ function SkillsWidget({ className = "" }) {
                                                     children: "Technical Skills"
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/app/page.jsx",
-                                                    lineNumber: 667,
+                                                    lineNumber: 724,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1401,7 +1455,7 @@ function SkillsWidget({ className = "" }) {
                                                                             children: skill.name
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/src/app/page.jsx",
-                                                                            lineNumber: 676,
+                                                                            lineNumber: 733,
                                                                             columnNumber: 29
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -1412,13 +1466,13 @@ function SkillsWidget({ className = "" }) {
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/src/app/page.jsx",
-                                                                            lineNumber: 677,
+                                                                            lineNumber: 734,
                                                                             columnNumber: 29
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/src/app/page.jsx",
-                                                                    lineNumber: 675,
+                                                                    lineNumber: 732,
                                                                     columnNumber: 27
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1437,29 +1491,29 @@ function SkillsWidget({ className = "" }) {
                                                                         }
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/src/app/page.jsx",
-                                                                        lineNumber: 680,
+                                                                        lineNumber: 737,
                                                                         columnNumber: 29
                                                                     }, this)
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/src/app/page.jsx",
-                                                                    lineNumber: 679,
+                                                                    lineNumber: 736,
                                                                     columnNumber: 27
                                                                 }, this)
                                                             ]
                                                         }, index, true, {
                                                             fileName: "[project]/src/app/page.jsx",
-                                                            lineNumber: 674,
+                                                            lineNumber: 731,
                                                             columnNumber: 25
                                                         }, this))
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/app/page.jsx",
-                                                    lineNumber: 668,
+                                                    lineNumber: 725,
                                                     columnNumber: 21
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/src/app/page.jsx",
-                                            lineNumber: 666,
+                                            lineNumber: 723,
                                             columnNumber: 19
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1469,7 +1523,7 @@ function SkillsWidget({ className = "" }) {
                                                     children: "Tech Stack"
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/app/page.jsx",
-                                                    lineNumber: 694,
+                                                    lineNumber: 751,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1480,12 +1534,12 @@ function SkillsWidget({ className = "" }) {
                                                             children: category.name
                                                         }, category.id, false, {
                                                             fileName: "[project]/src/app/page.jsx",
-                                                            lineNumber: 697,
+                                                            lineNumber: 754,
                                                             columnNumber: 25
                                                         }, this))
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/app/page.jsx",
-                                                    lineNumber: 695,
+                                                    lineNumber: 752,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1510,7 +1564,7 @@ function SkillsWidget({ className = "" }) {
                                                                     className: "w-12 h-12 object-contain"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/src/app/page.jsx",
-                                                                    lineNumber: 719,
+                                                                    lineNumber: 776,
                                                                     columnNumber: 27
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -1518,51 +1572,51 @@ function SkillsWidget({ className = "" }) {
                                                                     children: tech.name
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/src/app/page.jsx",
-                                                                    lineNumber: 724,
+                                                                    lineNumber: 781,
                                                                     columnNumber: 27
                                                                 }, this)
                                                             ]
                                                         }, index, true, {
                                                             fileName: "[project]/src/app/page.jsx",
-                                                            lineNumber: 712,
+                                                            lineNumber: 769,
                                                             columnNumber: 25
                                                         }, this))
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/app/page.jsx",
-                                                    lineNumber: 710,
+                                                    lineNumber: 767,
                                                     columnNumber: 21
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/src/app/page.jsx",
-                                            lineNumber: 693,
+                                            lineNumber: 750,
                                             columnNumber: 19
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/app/page.jsx",
-                                    lineNumber: 664,
+                                    lineNumber: 721,
                                     columnNumber: 17
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/src/app/page.jsx",
-                                lineNumber: 663,
+                                lineNumber: 720,
                                 columnNumber: 15
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/app/page.jsx",
-                        lineNumber: 633,
+                        lineNumber: 690,
                         columnNumber: 13
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/src/app/page.jsx",
-                    lineNumber: 626,
+                    lineNumber: 683,
                     columnNumber: 11
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/src/app/page.jsx",
-                lineNumber: 624,
+                lineNumber: 681,
                 columnNumber: 7
             }, this)
         ]
@@ -1680,7 +1734,7 @@ function ProjectsWidget({ className = "" }) {
                                     className: "text-gray-400 text-lg mr-2"
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/page.jsx",
-                                    lineNumber: 828,
+                                    lineNumber: 885,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
@@ -1688,13 +1742,13 @@ function ProjectsWidget({ className = "" }) {
                                     children: "Projects"
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/page.jsx",
-                                    lineNumber: 829,
+                                    lineNumber: 886,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/app/page.jsx",
-                            lineNumber: 827,
+                            lineNumber: 884,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1711,12 +1765,12 @@ function ProjectsWidget({ className = "" }) {
                                                 className: "w-full h-full object-cover"
                                             }, void 0, false, {
                                                 fileName: "[project]/src/app/page.jsx",
-                                                lineNumber: 834,
+                                                lineNumber: 891,
                                                 columnNumber: 17
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/src/app/page.jsx",
-                                            lineNumber: 833,
+                                            lineNumber: 890,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1730,28 +1784,28 @@ function ProjectsWidget({ className = "" }) {
                                                             children: project.title
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/app/page.jsx",
-                                                            lineNumber: 844,
+                                                            lineNumber: 901,
                                                             columnNumber: 23
                                                         }, this)
                                                     }, index, false, {
                                                         fileName: "[project]/src/app/page.jsx",
-                                                        lineNumber: 843,
+                                                        lineNumber: 900,
                                                         columnNumber: 21
                                                     }, this))
                                             }, void 0, false, {
                                                 fileName: "[project]/src/app/page.jsx",
-                                                lineNumber: 841,
+                                                lineNumber: 898,
                                                 columnNumber: 17
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/src/app/page.jsx",
-                                            lineNumber: 840,
+                                            lineNumber: 897,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/app/page.jsx",
-                                    lineNumber: 832,
+                                    lineNumber: 889,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1759,24 +1813,24 @@ function ProjectsWidget({ className = "" }) {
                                     children: "Click to view all projects"
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/page.jsx",
-                                    lineNumber: 850,
+                                    lineNumber: 907,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/app/page.jsx",
-                            lineNumber: 831,
+                            lineNumber: 888,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/src/app/page.jsx",
-                    lineNumber: 826,
+                    lineNumber: 883,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/src/app/page.jsx",
-                lineNumber: 822,
+                lineNumber: 879,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$framer$2d$motion$2f$dist$2f$es$2f$components$2f$AnimatePresence$2f$index$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["AnimatePresence"], {
@@ -1823,7 +1877,7 @@ function ProjectsWidget({ className = "" }) {
                                         children: "Projects"
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/page.jsx",
-                                        lineNumber: 875,
+                                        lineNumber: 932,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1838,7 +1892,7 @@ function ProjectsWidget({ className = "" }) {
                                                         children: "Cards"
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/app/page.jsx",
-                                                        lineNumber: 878,
+                                                        lineNumber: 935,
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -1847,13 +1901,13 @@ function ProjectsWidget({ className = "" }) {
                                                         children: "Gallery"
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/app/page.jsx",
-                                                        lineNumber: 888,
+                                                        lineNumber: 945,
                                                         columnNumber: 21
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/src/app/page.jsx",
-                                                lineNumber: 877,
+                                                lineNumber: 934,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -1872,29 +1926,29 @@ function ProjectsWidget({ className = "" }) {
                                                         d: "M6 18L18 6M6 6l12 12"
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/app/page.jsx",
-                                                        lineNumber: 910,
+                                                        lineNumber: 967,
                                                         columnNumber: 23
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/app/page.jsx",
-                                                    lineNumber: 903,
+                                                    lineNumber: 960,
                                                     columnNumber: 21
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/src/app/page.jsx",
-                                                lineNumber: 899,
+                                                lineNumber: 956,
                                                 columnNumber: 19
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/src/app/page.jsx",
-                                        lineNumber: 876,
+                                        lineNumber: 933,
                                         columnNumber: 17
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/app/page.jsx",
-                                lineNumber: 874,
+                                lineNumber: 931,
                                 columnNumber: 15
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1923,12 +1977,12 @@ function ProjectsWidget({ className = "" }) {
                                                         className: "w-full h-full object-cover"
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/app/page.jsx",
-                                                        lineNumber: 932,
+                                                        lineNumber: 989,
                                                         columnNumber: 27
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/app/page.jsx",
-                                                    lineNumber: 931,
+                                                    lineNumber: 988,
                                                     columnNumber: 25
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1939,7 +1993,7 @@ function ProjectsWidget({ className = "" }) {
                                                             children: project.title
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/app/page.jsx",
-                                                            lineNumber: 939,
+                                                            lineNumber: 996,
                                                             columnNumber: 27
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1947,7 +2001,7 @@ function ProjectsWidget({ className = "" }) {
                                                             children: project.description
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/app/page.jsx",
-                                                            lineNumber: 942,
+                                                            lineNumber: 999,
                                                             columnNumber: 27
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1957,12 +2011,12 @@ function ProjectsWidget({ className = "" }) {
                                                                     children: tech
                                                                 }, i, false, {
                                                                     fileName: "[project]/src/app/page.jsx",
-                                                                    lineNumber: 947,
+                                                                    lineNumber: 1004,
                                                                     columnNumber: 31
                                                                 }, this))
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/app/page.jsx",
-                                                            lineNumber: 945,
+                                                            lineNumber: 1002,
                                                             columnNumber: 27
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("a", {
@@ -1973,24 +2027,24 @@ function ProjectsWidget({ className = "" }) {
                                                             children: "View Project →"
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/app/page.jsx",
-                                                            lineNumber: 955,
+                                                            lineNumber: 1012,
                                                             columnNumber: 27
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/src/app/page.jsx",
-                                                    lineNumber: 938,
+                                                    lineNumber: 995,
                                                     columnNumber: 25
                                                 }, this)
                                             ]
                                         }, index, true, {
                                             fileName: "[project]/src/app/page.jsx",
-                                            lineNumber: 924,
+                                            lineNumber: 981,
                                             columnNumber: 23
                                         }, this))
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/page.jsx",
-                                    lineNumber: 922,
+                                    lineNumber: 979,
                                     columnNumber: 19
                                 }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                     className: "grid grid-cols-2 md:grid-cols-3 gap-4",
@@ -2020,7 +2074,7 @@ function ProjectsWidget({ className = "" }) {
                                                         className: "w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/app/page.jsx",
-                                                        lineNumber: 980,
+                                                        lineNumber: 1037,
                                                         columnNumber: 27
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2031,7 +2085,7 @@ function ProjectsWidget({ className = "" }) {
                                                                 children: design.title
                                                             }, void 0, false, {
                                                                 fileName: "[project]/src/app/page.jsx",
-                                                                lineNumber: 986,
+                                                                lineNumber: 1043,
                                                                 columnNumber: 29
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -2039,50 +2093,50 @@ function ProjectsWidget({ className = "" }) {
                                                                 children: design.category
                                                             }, void 0, false, {
                                                                 fileName: "[project]/src/app/page.jsx",
-                                                                lineNumber: 987,
+                                                                lineNumber: 1044,
                                                                 columnNumber: 29
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/src/app/page.jsx",
-                                                        lineNumber: 985,
+                                                        lineNumber: 1042,
                                                         columnNumber: 27
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/src/app/page.jsx",
-                                                lineNumber: 979,
+                                                lineNumber: 1036,
                                                 columnNumber: 25
                                             }, this)
                                         }, index, false, {
                                             fileName: "[project]/src/app/page.jsx",
-                                            lineNumber: 970,
+                                            lineNumber: 1027,
                                             columnNumber: 23
                                         }, this))
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/page.jsx",
-                                    lineNumber: 968,
+                                    lineNumber: 1025,
                                     columnNumber: 19
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/src/app/page.jsx",
-                                lineNumber: 920,
+                                lineNumber: 977,
                                 columnNumber: 15
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/app/page.jsx",
-                        lineNumber: 866,
+                        lineNumber: 923,
                         columnNumber: 13
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/src/app/page.jsx",
-                    lineNumber: 859,
+                    lineNumber: 916,
                     columnNumber: 11
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/src/app/page.jsx",
-                lineNumber: 857,
+                lineNumber: 914,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$framer$2d$motion$2f$dist$2f$es$2f$components$2f$AnimatePresence$2f$index$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["AnimatePresence"], {
@@ -2124,7 +2178,7 @@ function ProjectsWidget({ className = "" }) {
                                 className: "max-w-full max-h-[90vh] object-contain rounded-lg"
                             }, void 0, false, {
                                 fileName: "[project]/src/app/page.jsx",
-                                lineNumber: 1018,
+                                lineNumber: 1075,
                                 columnNumber: 15
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -2143,33 +2197,33 @@ function ProjectsWidget({ className = "" }) {
                                         d: "M6 18L18 6M6 6l12 12"
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/page.jsx",
-                                        lineNumber: 1034,
+                                        lineNumber: 1091,
                                         columnNumber: 19
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/page.jsx",
-                                    lineNumber: 1027,
+                                    lineNumber: 1084,
                                     columnNumber: 17
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/src/app/page.jsx",
-                                lineNumber: 1023,
+                                lineNumber: 1080,
                                 columnNumber: 15
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/app/page.jsx",
-                        lineNumber: 1010,
+                        lineNumber: 1067,
                         columnNumber: 13
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/src/app/page.jsx",
-                    lineNumber: 1003,
+                    lineNumber: 1060,
                     columnNumber: 11
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/src/app/page.jsx",
-                lineNumber: 1001,
+                lineNumber: 1058,
                 columnNumber: 7
             }, this)
         ]
@@ -2196,6 +2250,12 @@ function CertificatesWidget({ className = "" }) {
             organization: "PT. ITHO Indostock",
             date: "17 Mei 2024 ",
             image: "/images/ses.jpg"
+        },
+        {
+            title: "Grand Finalis Website SMK - Micro Influencer Competition GSS 2024",
+            organization: "Yayasan Sagasitas Indonesia",
+            date: "1 Oktober 2024",
+            image: "/images/sagasitas.jpeg"
         },
         {
             title: "Belajar Dasar Pemrograman Web",
@@ -2249,7 +2309,7 @@ function CertificatesWidget({ className = "" }) {
                                     className: "text-gray-400 text-lg mr-2"
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/page.jsx",
-                                    lineNumber: 1118,
+                                    lineNumber: 1181,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
@@ -2257,13 +2317,13 @@ function CertificatesWidget({ className = "" }) {
                                     children: "Certificates"
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/page.jsx",
-                                    lineNumber: 1119,
+                                    lineNumber: 1182,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/app/page.jsx",
-                            lineNumber: 1117,
+                            lineNumber: 1180,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2280,12 +2340,12 @@ function CertificatesWidget({ className = "" }) {
                                                 className: "w-full h-full object-cover"
                                             }, void 0, false, {
                                                 fileName: "[project]/src/app/page.jsx",
-                                                lineNumber: 1124,
+                                                lineNumber: 1187,
                                                 columnNumber: 17
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/src/app/page.jsx",
-                                            lineNumber: 1123,
+                                            lineNumber: 1186,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2299,28 +2359,28 @@ function CertificatesWidget({ className = "" }) {
                                                             children: cert.title
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/app/page.jsx",
-                                                            lineNumber: 1134,
+                                                            lineNumber: 1197,
                                                             columnNumber: 23
                                                         }, this)
                                                     }, index, false, {
                                                         fileName: "[project]/src/app/page.jsx",
-                                                        lineNumber: 1133,
+                                                        lineNumber: 1196,
                                                         columnNumber: 21
                                                     }, this))
                                             }, void 0, false, {
                                                 fileName: "[project]/src/app/page.jsx",
-                                                lineNumber: 1131,
+                                                lineNumber: 1194,
                                                 columnNumber: 17
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/src/app/page.jsx",
-                                            lineNumber: 1130,
+                                            lineNumber: 1193,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/app/page.jsx",
-                                    lineNumber: 1122,
+                                    lineNumber: 1185,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2328,24 +2388,24 @@ function CertificatesWidget({ className = "" }) {
                                     children: "Click to view all certificates"
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/page.jsx",
-                                    lineNumber: 1140,
+                                    lineNumber: 1203,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/app/page.jsx",
-                            lineNumber: 1121,
+                            lineNumber: 1184,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/src/app/page.jsx",
-                    lineNumber: 1116,
+                    lineNumber: 1179,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/src/app/page.jsx",
-                lineNumber: 1112,
+                lineNumber: 1175,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$framer$2d$motion$2f$dist$2f$es$2f$components$2f$AnimatePresence$2f$index$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["AnimatePresence"], {
@@ -2392,7 +2452,7 @@ function CertificatesWidget({ className = "" }) {
                                         children: "Certificates"
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/page.jsx",
-                                        lineNumber: 1165,
+                                        lineNumber: 1228,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -2411,23 +2471,23 @@ function CertificatesWidget({ className = "" }) {
                                                 d: "M6 18L18 6M6 6l12 12"
                                             }, void 0, false, {
                                                 fileName: "[project]/src/app/page.jsx",
-                                                lineNumber: 1177,
+                                                lineNumber: 1240,
                                                 columnNumber: 21
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/src/app/page.jsx",
-                                            lineNumber: 1170,
+                                            lineNumber: 1233,
                                             columnNumber: 19
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/page.jsx",
-                                        lineNumber: 1166,
+                                        lineNumber: 1229,
                                         columnNumber: 17
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/app/page.jsx",
-                                lineNumber: 1164,
+                                lineNumber: 1227,
                                 columnNumber: 15
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2458,12 +2518,12 @@ function CertificatesWidget({ className = "" }) {
                                                             className: "w-full h-full object-cover rounded-lg"
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/app/page.jsx",
-                                                            lineNumber: 1198,
+                                                            lineNumber: 1261,
                                                             columnNumber: 27
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/app/page.jsx",
-                                                        lineNumber: 1197,
+                                                        lineNumber: 1260,
                                                         columnNumber: 25
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2473,7 +2533,7 @@ function CertificatesWidget({ className = "" }) {
                                                                 children: cert.title
                                                             }, void 0, false, {
                                                                 fileName: "[project]/src/app/page.jsx",
-                                                                lineNumber: 1205,
+                                                                lineNumber: 1268,
                                                                 columnNumber: 27
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2481,7 +2541,7 @@ function CertificatesWidget({ className = "" }) {
                                                                 children: cert.organization
                                                             }, void 0, false, {
                                                                 fileName: "[project]/src/app/page.jsx",
-                                                                lineNumber: 1208,
+                                                                lineNumber: 1271,
                                                                 columnNumber: 27
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2492,50 +2552,50 @@ function CertificatesWidget({ className = "" }) {
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/src/app/page.jsx",
-                                                                lineNumber: 1211,
+                                                                lineNumber: 1274,
                                                                 columnNumber: 27
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/src/app/page.jsx",
-                                                        lineNumber: 1204,
+                                                        lineNumber: 1267,
                                                         columnNumber: 25
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/src/app/page.jsx",
-                                                lineNumber: 1196,
+                                                lineNumber: 1259,
                                                 columnNumber: 23
                                             }, this)
                                         }, index, false, {
                                             fileName: "[project]/src/app/page.jsx",
-                                            lineNumber: 1189,
+                                            lineNumber: 1252,
                                             columnNumber: 21
                                         }, this))
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/page.jsx",
-                                    lineNumber: 1187,
+                                    lineNumber: 1250,
                                     columnNumber: 17
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/src/app/page.jsx",
-                                lineNumber: 1186,
+                                lineNumber: 1249,
                                 columnNumber: 15
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/app/page.jsx",
-                        lineNumber: 1156,
+                        lineNumber: 1219,
                         columnNumber: 13
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/src/app/page.jsx",
-                    lineNumber: 1149,
+                    lineNumber: 1212,
                     columnNumber: 11
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/src/app/page.jsx",
-                lineNumber: 1147,
+                lineNumber: 1210,
                 columnNumber: 7
             }, this)
         ]
@@ -2588,7 +2648,7 @@ function ContactsWidget({ className = "" }) {
                                     className: "text-gray-400 text-lg mr-2"
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/page.jsx",
-                                    lineNumber: 1270,
+                                    lineNumber: 1333,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
@@ -2596,13 +2656,13 @@ function ContactsWidget({ className = "" }) {
                                     children: "Contact"
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/page.jsx",
-                                    lineNumber: 1271,
+                                    lineNumber: 1334,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/app/page.jsx",
-                            lineNumber: 1269,
+                            lineNumber: 1332,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2621,7 +2681,7 @@ function ContactsWidget({ className = "" }) {
                                         className: "text-gray-400"
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/page.jsx",
-                                        lineNumber: 1279,
+                                        lineNumber: 1342,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -2629,18 +2689,18 @@ function ContactsWidget({ className = "" }) {
                                         children: "farrelrabbani88@gmail.com"
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/page.jsx",
-                                        lineNumber: 1280,
+                                        lineNumber: 1343,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/app/page.jsx",
-                                lineNumber: 1274,
+                                lineNumber: 1337,
                                 columnNumber: 13
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/src/app/page.jsx",
-                            lineNumber: 1273,
+                            lineNumber: 1336,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$framer$2d$motion$2f$dist$2f$es$2f$render$2f$components$2f$motion$2f$proxy$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["motion"].p, {
@@ -2657,18 +2717,18 @@ function ContactsWidget({ className = "" }) {
                             children: "Click to send a message"
                         }, void 0, false, {
                             fileName: "[project]/src/app/page.jsx",
-                            lineNumber: 1283,
+                            lineNumber: 1346,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/src/app/page.jsx",
-                    lineNumber: 1268,
+                    lineNumber: 1331,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/src/app/page.jsx",
-                lineNumber: 1264,
+                lineNumber: 1327,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$framer$2d$motion$2f$dist$2f$es$2f$components$2f$AnimatePresence$2f$index$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["AnimatePresence"], {
@@ -2715,7 +2775,7 @@ function ContactsWidget({ className = "" }) {
                                         children: "Get in Touch"
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/page.jsx",
-                                        lineNumber: 1312,
+                                        lineNumber: 1375,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -2734,23 +2794,23 @@ function ContactsWidget({ className = "" }) {
                                                 d: "M6 18L18 6M6 6l12 12"
                                             }, void 0, false, {
                                                 fileName: "[project]/src/app/page.jsx",
-                                                lineNumber: 1324,
+                                                lineNumber: 1387,
                                                 columnNumber: 21
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/src/app/page.jsx",
-                                            lineNumber: 1317,
+                                            lineNumber: 1380,
                                             columnNumber: 19
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/page.jsx",
-                                        lineNumber: 1313,
+                                        lineNumber: 1376,
                                         columnNumber: 17
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/app/page.jsx",
-                                lineNumber: 1311,
+                                lineNumber: 1374,
                                 columnNumber: 15
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2768,7 +2828,7 @@ function ContactsWidget({ className = "" }) {
                                                     children: "Name"
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/app/page.jsx",
-                                                    lineNumber: 1336,
+                                                    lineNumber: 1399,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -2782,13 +2842,13 @@ function ContactsWidget({ className = "" }) {
                                                     required: true
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/app/page.jsx",
-                                                    lineNumber: 1339,
+                                                    lineNumber: 1402,
                                                     columnNumber: 21
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/src/app/page.jsx",
-                                            lineNumber: 1335,
+                                            lineNumber: 1398,
                                             columnNumber: 19
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2800,7 +2860,7 @@ function ContactsWidget({ className = "" }) {
                                                     children: "Email"
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/app/page.jsx",
-                                                    lineNumber: 1351,
+                                                    lineNumber: 1414,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -2814,13 +2874,13 @@ function ContactsWidget({ className = "" }) {
                                                     required: true
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/app/page.jsx",
-                                                    lineNumber: 1354,
+                                                    lineNumber: 1417,
                                                     columnNumber: 21
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/src/app/page.jsx",
-                                            lineNumber: 1350,
+                                            lineNumber: 1413,
                                             columnNumber: 19
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2832,7 +2892,7 @@ function ContactsWidget({ className = "" }) {
                                                     children: "Message"
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/app/page.jsx",
-                                                    lineNumber: 1366,
+                                                    lineNumber: 1429,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("textarea", {
@@ -2846,13 +2906,13 @@ function ContactsWidget({ className = "" }) {
                                                     required: true
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/app/page.jsx",
-                                                    lineNumber: 1369,
+                                                    lineNumber: 1432,
                                                     columnNumber: 21
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/src/app/page.jsx",
-                                            lineNumber: 1365,
+                                            lineNumber: 1428,
                                             columnNumber: 19
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$framer$2d$motion$2f$dist$2f$es$2f$render$2f$components$2f$motion$2f$proxy$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["motion"].button, {
@@ -2867,34 +2927,34 @@ function ContactsWidget({ className = "" }) {
                                             children: "Send Message"
                                         }, void 0, false, {
                                             fileName: "[project]/src/app/page.jsx",
-                                            lineNumber: 1380,
+                                            lineNumber: 1443,
                                             columnNumber: 19
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/app/page.jsx",
-                                    lineNumber: 1334,
+                                    lineNumber: 1397,
                                     columnNumber: 17
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/src/app/page.jsx",
-                                lineNumber: 1333,
+                                lineNumber: 1396,
                                 columnNumber: 15
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/app/page.jsx",
-                        lineNumber: 1303,
+                        lineNumber: 1366,
                         columnNumber: 13
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/src/app/page.jsx",
-                    lineNumber: 1296,
+                    lineNumber: 1359,
                     columnNumber: 11
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/src/app/page.jsx",
-                lineNumber: 1294,
+                lineNumber: 1357,
                 columnNumber: 7
             }, this)
         ]
@@ -2914,7 +2974,7 @@ function DateTimeWidget({ currentTime, className = "" }) {
                             className: "text-gray-400 text-lg mr-2"
                         }, void 0, false, {
                             fileName: "[project]/src/app/page.jsx",
-                            lineNumber: 1404,
+                            lineNumber: 1467,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
@@ -2922,13 +2982,13 @@ function DateTimeWidget({ currentTime, className = "" }) {
                             children: "Time"
                         }, void 0, false, {
                             fileName: "[project]/src/app/page.jsx",
-                            lineNumber: 1405,
+                            lineNumber: 1468,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/src/app/page.jsx",
-                    lineNumber: 1403,
+                    lineNumber: 1466,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2953,20 +3013,20 @@ function DateTimeWidget({ currentTime, className = "" }) {
                                     children: (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$format$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$locals$3e$__["format"])(currentTime, "HH:mm:ss")
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/page.jsx",
-                                    lineNumber: 1409,
+                                    lineNumber: 1472,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                     className: "absolute -bottom-1 left-1/2 w-16 h-0.5 bg-gradient-to-r from-transparent via-gray-400 to-transparent transform -translate-x-1/2"
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/page.jsx",
-                                    lineNumber: 1417,
+                                    lineNumber: 1480,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/app/page.jsx",
-                            lineNumber: 1408,
+                            lineNumber: 1471,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$framer$2d$motion$2f$dist$2f$es$2f$render$2f$components$2f$motion$2f$proxy$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["motion"].p, {
@@ -2986,7 +3046,7 @@ function DateTimeWidget({ currentTime, className = "" }) {
                             })
                         }, void 0, false, {
                             fileName: "[project]/src/app/page.jsx",
-                            lineNumber: 1419,
+                            lineNumber: 1482,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$framer$2d$motion$2f$dist$2f$es$2f$render$2f$components$2f$motion$2f$proxy$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["motion"].p, {
@@ -3006,24 +3066,24 @@ function DateTimeWidget({ currentTime, className = "" }) {
                             })
                         }, void 0, false, {
                             fileName: "[project]/src/app/page.jsx",
-                            lineNumber: 1427,
+                            lineNumber: 1490,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/src/app/page.jsx",
-                    lineNumber: 1407,
+                    lineNumber: 1470,
                     columnNumber: 9
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/src/app/page.jsx",
-            lineNumber: 1402,
+            lineNumber: 1465,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/src/app/page.jsx",
-        lineNumber: 1401,
+        lineNumber: 1464,
         columnNumber: 5
     }, this);
 }
@@ -3052,7 +3112,7 @@ function QuoteWidget({ className = "" }) {
                     className: "text-xl text-gray-400 mb-2"
                 }, void 0, false, {
                     fileName: "[project]/src/app/page.jsx",
-                    lineNumber: 1464,
+                    lineNumber: 1527,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$framer$2d$motion$2f$dist$2f$es$2f$render$2f$components$2f$motion$2f$proxy$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["motion"].p, {
@@ -3076,18 +3136,18 @@ function QuoteWidget({ className = "" }) {
                     ]
                 }, currentQuote, true, {
                     fileName: "[project]/src/app/page.jsx",
-                    lineNumber: 1465,
+                    lineNumber: 1528,
                     columnNumber: 9
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/src/app/page.jsx",
-            lineNumber: 1463,
+            lineNumber: 1526,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/src/app/page.jsx",
-        lineNumber: 1462,
+        lineNumber: 1525,
         columnNumber: 5
     }, this);
 }
@@ -3127,7 +3187,7 @@ function SocialLinksWidget({ className = "" }) {
                             className: "text-gray-400 text-lg mr-2"
                         }, void 0, false, {
                             fileName: "[project]/src/app/page.jsx",
-                            lineNumber: 1493,
+                            lineNumber: 1556,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
@@ -3135,13 +3195,13 @@ function SocialLinksWidget({ className = "" }) {
                             children: "Social Links"
                         }, void 0, false, {
                             fileName: "[project]/src/app/page.jsx",
-                            lineNumber: 1494,
+                            lineNumber: 1557,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/src/app/page.jsx",
-                    lineNumber: 1492,
+                    lineNumber: 1555,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3162,7 +3222,7 @@ function SocialLinksWidget({ className = "" }) {
                                     className: "text-gray-400"
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/page.jsx",
-                                    lineNumber: 1507,
+                                    lineNumber: 1570,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -3170,29 +3230,29 @@ function SocialLinksWidget({ className = "" }) {
                                     children: social.label
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/page.jsx",
-                                    lineNumber: 1508,
+                                    lineNumber: 1571,
                                     columnNumber: 15
                                 }, this)
                             ]
                         }, index, true, {
                             fileName: "[project]/src/app/page.jsx",
-                            lineNumber: 1498,
+                            lineNumber: 1561,
                             columnNumber: 13
                         }, this))
                 }, void 0, false, {
                     fileName: "[project]/src/app/page.jsx",
-                    lineNumber: 1496,
+                    lineNumber: 1559,
                     columnNumber: 9
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/src/app/page.jsx",
-            lineNumber: 1491,
+            lineNumber: 1554,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/src/app/page.jsx",
-        lineNumber: 1490,
+        lineNumber: 1553,
         columnNumber: 5
     }, this);
 }
@@ -3210,7 +3270,7 @@ function BlogWidget({ className = "" }) {
                             className: "text-gray-400 text-lg mr-2"
                         }, void 0, false, {
                             fileName: "[project]/src/app/page.jsx",
-                            lineNumber: 1523,
+                            lineNumber: 1586,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
@@ -3218,13 +3278,13 @@ function BlogWidget({ className = "" }) {
                             children: "Blog"
                         }, void 0, false, {
                             fileName: "[project]/src/app/page.jsx",
-                            lineNumber: 1524,
+                            lineNumber: 1587,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/src/app/page.jsx",
-                    lineNumber: 1522,
+                    lineNumber: 1585,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3247,7 +3307,7 @@ function BlogWidget({ className = "" }) {
                                 className: "absolute -inset-4 bg-gray-800/30 rounded-full blur-xl"
                             }, void 0, false, {
                                 fileName: "[project]/src/app/page.jsx",
-                                lineNumber: 1533,
+                                lineNumber: 1596,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3267,7 +3327,7 @@ function BlogWidget({ className = "" }) {
                                         children: "Under Construction"
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/page.jsx",
-                                        lineNumber: 1535,
+                                        lineNumber: 1598,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$framer$2d$motion$2f$dist$2f$es$2f$render$2f$components$2f$motion$2f$proxy$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["motion"].div, {
@@ -3284,7 +3344,7 @@ function BlogWidget({ className = "" }) {
                                         }
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/page.jsx",
-                                        lineNumber: 1543,
+                                        lineNumber: 1606,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$framer$2d$motion$2f$dist$2f$es$2f$render$2f$components$2f$motion$2f$proxy$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["motion"].p, {
@@ -3301,35 +3361,35 @@ function BlogWidget({ className = "" }) {
                                         children: "Something amazing is coming soon"
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/page.jsx",
-                                        lineNumber: 1549,
+                                        lineNumber: 1612,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/app/page.jsx",
-                                lineNumber: 1534,
+                                lineNumber: 1597,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/app/page.jsx",
-                        lineNumber: 1527,
+                        lineNumber: 1590,
                         columnNumber: 11
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/src/app/page.jsx",
-                    lineNumber: 1526,
+                    lineNumber: 1589,
                     columnNumber: 9
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/src/app/page.jsx",
-            lineNumber: 1521,
+            lineNumber: 1584,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/src/app/page.jsx",
-        lineNumber: 1520,
+        lineNumber: 1583,
         columnNumber: 5
     }, this);
 }
@@ -3347,20 +3407,20 @@ function LoadingScreen() {
                             className: "absolute inset-0 rounded-full border-4 border-gray-500/20"
                         }, void 0, false, {
                             fileName: "[project]/src/app/page.jsx",
-                            lineNumber: 1571,
+                            lineNumber: 1634,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                             className: "absolute inset-0 rounded-full border-4 border-t-gray-400 border-r-transparent border-b-transparent border-l-transparent animate-spin"
                         }, void 0, false, {
                             fileName: "[project]/src/app/page.jsx",
-                            lineNumber: 1572,
+                            lineNumber: 1635,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/src/app/page.jsx",
-                    lineNumber: 1570,
+                    lineNumber: 1633,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3368,18 +3428,18 @@ function LoadingScreen() {
                     children: "‎"
                 }, void 0, false, {
                     fileName: "[project]/src/app/page.jsx",
-                    lineNumber: 1574,
+                    lineNumber: 1637,
                     columnNumber: 9
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/src/app/page.jsx",
-            lineNumber: 1569,
+            lineNumber: 1632,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/src/app/page.jsx",
-        lineNumber: 1568,
+        lineNumber: 1631,
         columnNumber: 5
     }, this);
 }
