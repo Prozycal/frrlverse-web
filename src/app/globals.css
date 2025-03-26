@@ -1,0 +1,531 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap');
+
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+  color-scheme: dark;
+  --animation-float: float 5s ease-in-out infinite;
+  --backdrop-blur-xs: 2px;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: "Montserrat", sans-serif;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(31, 41, 55, 0.5);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(107, 114, 128, 0.5);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(156, 163, 175, 0.5);
+}
+
+/* Animations */
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+.float-animation {
+  animation: float 5s ease-in-out infinite;
+}
+
+/* Buat kelas utilitas untuk animasi menggunakan variabel */
+.float {
+  animation: var(--animation-float);
+}
+
+/* Buat kelas utilitas untuk backdrop blur */
+.backdrop-blur-xs {
+  backdrop-filter: blur(var(--backdrop-blur-xs));
+}
+
+/* Grid height utilities */
+.h-screen-minus-header {
+  height: calc(100vh - 120px);
+}
+
+.min-h-card {
+  min-height: 180px;
+}
+
+/* Responsive grid adjustments */
+@media (min-width: 1024px) {
+  .lg-grid-fit {
+    grid-template-rows: repeat(auto-fit, minmax(0, 1fr));
+  }
+}
+
+/* Card content positioning */
+.card-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.mt-auto-safe {
+  margin-top: auto;
+  padding-top: 0.5rem;
+}
+
+/* Ensure images don't overflow */
+.img-contain {
+  object-fit: contain;
+  max-height: 100%;
+  max-width: 100%;
+}
+
+/* Mobile optimization utilities */
+@media (max-width: 768px) {
+  /* Adjust vertical spacing on mobile */
+  .mobile-spacing {
+    margin-bottom: 0.75rem;
+  }
+  
+  /* Optimize text for small screens */
+  .mobile-text-adjust {
+    font-size: 0.9rem;
+    line-height: 1.4;
+  }
+  
+  /* Ensure consistent card heights on mobile */
+  .mobile-card-height {
+    min-height: 140px;
+    margin-bottom: 12px;
+  }
+  
+  /* Prevent overflow issues on small screens */
+  .mobile-overflow-fix {
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+}
+
+/* Mobile grid spacing */
+.grid-gap-mobile {
+  gap: 0.75rem;
+}
+
+@media (max-width: 640px) {
+  .grid-gap-mobile {
+    gap: 0.5rem;
+  }
+  
+  /* Better mobile touch targets */
+  .touch-target-mobile {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* Fix for mobile portrait orientation */
+@media (max-width: 768px) and (orientation: portrait) {
+  .mobile-portrait-fix {
+    height: auto !important;
+    min-height: 0;
+  }
+  
+  body {
+    overflow-x: hidden;
+  }
+}
+
+/* Consistent font sizing for mobile */
+.responsive-text {
+  font-size: clamp(0.875rem, 2.5vw, 1rem);
+}
+
+.responsive-heading {
+  font-size: clamp(1.25rem, 4vw, 1.5rem);
+}
+
+/* Add this to your globals.css file */
+@keyframes expandLine {
+  0% {
+    transform: scaleX(0);
+  }
+  100% {
+    transform: scaleX(1);
+  }
+}
+
+.animate-expandLine {
+  animation: expandLine 1.2s ease-out forwards 0.5s;
+}
+
+/* Add these background effects */
+@keyframes slowPulse {
+  0% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 0.3;
+  }
+}
+
+@keyframes slowDrift {
+  0% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(1%, 1%);
+  }
+  100% {
+    transform: translate(0, 0);
+  }
+}
+
+.bg-light-effect {
+  animation: slowPulse 10s infinite ease-in-out;
+}
+
+.bg-light-drift {
+  animation: slowDrift 20s infinite ease-in-out;
+}
+
+/* Improve contrast for text against blurry backgrounds */
+.text-shadow-sm {
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* Enhance card legibility against blurry backgrounds */
+.card-backdrop-contrast {
+  backdrop-filter: contrast(1.05) brightness(0.95);
+}
+
+/* Animation for pin error shake */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+  20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+.animate-shake {
+  animation: shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+/* Custom scrollbar for the About modal */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(31, 41, 55, 0.3);
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(114, 114, 114, 0.4);
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(114, 114, 114, 0.6);
+}
+
+/* Enhanced styling for the About profile modal */
+.profile-section {
+  position: relative;
+  z-index: 20;
+}
+
+.profile-section::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  background: linear-gradient(to right, rgba(114, 114, 114, 0.1), rgba(99, 102, 241, 0.1));
+  border-radius: inherit;
+  z-index: -1;
+}
+
+.profile-badge {
+  position: relative;
+  overflow: hidden;
+  background-color: rgba(30, 27, 75, 0.3);
+  border-radius: 0.5rem;
+}
+
+.profile-badge::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: conic-gradient(
+    transparent,
+    rgba(114, 114, 114, 0.4),
+    transparent 30%
+  );
+  animation: rotate 4s linear infinite;
+}
+
+@keyframes rotate {
+  100% {
+    transform: rotate(1turn);
+  }
+}
+
+/* Improved scrollbar for the profile modal */
+.profile-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.profile-scrollbar::-webkit-scrollbar-track {
+  background: rgba(109, 40, 217, 0.05);
+  border-radius: 4px;
+}
+
+.profile-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(114, 114, 114, 0.2);
+  border-radius: 4px;
+}
+
+.profile-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(114, 114, 114, 0.4);
+}
+
+/* Shimmer animation for profile elements */
+.shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.shimmer::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  transform: translateX(-100%);
+  background-image: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0,
+    rgba(255, 255, 255, 0.05) 20%,
+    rgba(255, 255, 255, 0.1) 60%,
+    rgba(255, 255, 255, 0)
+  );
+  animation: shimmer 2.5s infinite;
+}
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Enhanced Bento Grid Layout */
+.bento-grid-container {
+  display: grid;
+  gap: 0.75rem;
+}
+
+@media (min-width: 768px) {
+  .bento-grid-container {
+    gap: 1rem;
+    grid-template-rows: repeat(3, minmax(160px, auto));
+  }
+}
+
+@media (min-width: 1024px) {
+  .bento-grid-container {
+    gap: 1.25rem;
+    grid-template-rows: repeat(3, minmax(180px, auto));
+  }
+}
+
+@media (min-width: 1280px) {
+  .bento-grid-container {
+    grid-template-rows: repeat(3, minmax(200px, auto));
+  }
+}
+
+/* Card sizing improvements */
+.bento-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.bento-card:hover {
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+}
+
+/* Ensure proper viewport height calculations */
+html, body {
+  height: 100%;
+}
+
+/* Viewport height-based calculations */
+@media (min-height: 800px) {
+  .bento-grid-container {
+    min-height: 600px;
+  }
+}
+
+@media (min-height: 1000px) {
+  .bento-grid-container {
+    min-height: 700px;
+  }
+}
+
+/* Mobile optimizations for the grid */
+@media (max-width: 767px) {
+  .bento-grid-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    height: auto !important;
+  }
+  
+  .bento-card {
+    min-height: 140px;
+    height: auto;
+  }
+  
+  /* Fix for RandomPhotoWidget on mobile */
+  .bento-card.p-0 {
+    height: 240px !important;
+    min-height: 240px !important;
+    margin-bottom: 12px;
+  }
+  
+  /* Make sure images display properly */
+  .bento-card.p-0 img {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: inherit;
+  }
+}
+
+/* Prevent content overflow in cards */
+.bento-card > div {
+  overflow: hidden;
+}
+
+/* Modal styles */
+.modal-container {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background-color: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(4px);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.modal-content {
+  position: relative;
+  width: 100%;
+  max-width: 64rem;
+  max-height: calc(100vh - 2rem);
+  margin: 1rem;
+  background-color: rgb(17, 24, 39);
+  border-radius: 1rem;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-scrollable {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 1.5rem;
+}
+
+/* Custom scrollbar for modals */
+.modal-scrollable::-webkit-scrollbar {
+  width: 6px;
+}
+
+.modal-scrollable::-webkit-scrollbar-track {
+  background: rgba(31, 41, 55, 0.3);
+  border-radius: 3px;
+}
+
+.modal-scrollable::-webkit-scrollbar-thumb {
+  background: rgba(114, 114, 114, 0.4);
+  border-radius: 3px;
+}
+
+.modal-scrollable::-webkit-scrollbar-thumb:hover {
+  background: rgba(114, 114, 114, 0.6);
+}
+
+/* Prevent body scroll when modal is open */
+body.modal-open {
+  overflow: hidden;
+}
+
+/* Modal header styles */
+.modal-header {
+  padding: 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .modal-content {
+    margin: 0.5rem;
+    max-height: calc(100vh - 1rem);
+  }
+  
+  .modal-scrollable {
+    padding: 1rem;
+  }
+  
+  .modal-header {
+    padding: 1rem;
+  }
+}
