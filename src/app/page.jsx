@@ -27,7 +27,6 @@ export default function Home() {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [isLoading, setIsLoading] = useState(true);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const [cursorVariant, setCursorVariant] = useState("default");
   const [isHovering, setIsHovering] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
 
@@ -61,31 +60,6 @@ export default function Home() {
       }
     };
 
-    const handleMouseEnter = () => {
-      if (isDesktop) {
-        setIsHovering(true);
-        document.body.style.cursor = 'none';
-        document.documentElement.style.cursor = 'none';
-      }
-    };
-
-    const handleMouseLeave = () => {
-      if (isDesktop) {
-        setIsHovering(false);
-        document.body.style.cursor = 'none';
-        document.documentElement.style.cursor = 'none';
-      }
-    };
-
-    // Hide default cursor globally only on desktop
-    if (isDesktop) {
-      document.body.style.cursor = 'none';
-      document.documentElement.style.cursor = 'none';
-      document.querySelectorAll('*').forEach(element => {
-        element.style.cursor = 'none';
-      });
-    }
-
     // Add hover detection for interactive elements
     const handleElementHover = (e) => {
       if (!isDesktop) return;
@@ -101,20 +75,12 @@ export default function Home() {
         target.closest('.cursor-pointer')
       ) {
         setIsHovering(true);
-        document.body.style.cursor = 'none';
-        document.documentElement.style.cursor = 'none';
-        target.style.cursor = 'none';
       } else {
         setIsHovering(false);
-        document.body.style.cursor = 'none';
-        document.documentElement.style.cursor = 'none';
-        target.style.cursor = 'none';
       }
     };
 
     window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('mouseenter', handleMouseEnter);
-    window.addEventListener('mouseleave', handleMouseLeave);
     document.addEventListener('mouseover', handleElementHover);
 
     // Add global style to hide cursor only on desktop
@@ -132,12 +98,8 @@ export default function Home() {
       clearTimeout(timer);
       clearInterval(timeInterval);
       window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseenter', handleMouseEnter);
-      window.removeEventListener('mouseleave', handleMouseLeave);
       document.removeEventListener('mouseover', handleElementHover);
       window.removeEventListener('resize', checkDevice);
-      document.body.style.cursor = 'default';
-      document.documentElement.style.cursor = 'default';
       style.remove();
     };
   }, [isDesktop]);
@@ -156,32 +118,16 @@ export default function Home() {
       {/* Custom Cursor - Only show on desktop */}
       {isDesktop && (
         <>
-          <motion.div
-            className="fixed top-0 left-0 w-3 h-3 bg-white rounded-sm pointer-events-none z-50 mix-blend-difference"
-            animate={{
-              x: mousePosition.x - 6,
-              y: mousePosition.y - 6,
-              rotate: 45,
-              scale: isHovering ? 1.2 : 1,
-            }}
-            transition={{
-              type: "spring",
-              damping: 30,
-              stiffness: 300,
+          <div
+            className="fixed top-0 left-0 w-3 h-3 bg-white rounded-sm pointer-events-none z-50 mix-blend-difference transition-transform duration-200 ease-out"
+            style={{
+              transform: `translate(${mousePosition.x - 6}px, ${mousePosition.y - 6}px) rotate(45deg) scale(${isHovering ? 1.2 : 1})`
             }}
           />
-          <motion.div
-            className="fixed top-0 left-0 w-6 h-6 border border-white/50 rounded-sm pointer-events-none z-50 mix-blend-difference"
-            animate={{
-              x: mousePosition.x - 12,
-              y: mousePosition.y - 12,
-              scale: isHovering ? 1.5 : 1,
-              rotate: 45,
-            }}
-            transition={{
-              type: "spring",
-              damping: 20,
-              stiffness: 200,
+          <div
+            className="fixed top-0 left-0 w-6 h-6 border border-white/50 rounded-sm pointer-events-none z-50 mix-blend-difference transition-transform duration-300 ease-out"
+            style={{
+              transform: `translate(${mousePosition.x - 12}px, ${mousePosition.y - 12}px) rotate(45deg) scale(${isHovering ? 1.5 : 1})`
             }}
           />
         </>
@@ -367,25 +313,48 @@ function ProfileWidget({ className = "" }) {
   ];
   const [currentTitleIndex, setCurrentTitleIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
+    const checkDevice = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    
+    // Initial check
+    checkDevice();
+    
+    // Add resize listener
+    window.addEventListener('resize', checkDevice);
+
     const interval = setInterval(() => {
       setCurrentTitleIndex((prev) => (prev + 1) % titles.length);
     }, 3000); // Change title every 3 seconds
 
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('resize', checkDevice);
+    };
   }, []);
+
+  const handleFlip = () => {
+    if (isMobile) {
+      setIsFlipped(!isFlipped);
+    }
+  };
 
   return (
     <BentoCard className={`bg-gradient-to-br from-gray-800/30 to-gray-700/30 ${className}`}>
       <div className="flex flex-col items-center justify-center h-full text-center">
-        <div className="relative w-24 h-24 mb-4 [perspective:1000px]">
+        <div 
+          className="relative w-24 h-24 mb-4 [perspective:1000px] cursor-pointer"
+          onClick={handleFlip}
+        >
           <motion.div
             className="relative w-full h-full [transform-style:preserve-3d]"
             animate={{ rotateY: isFlipped ? 180 : 0 }}
             transition={{ duration: 0.6, type: "spring", stiffness: 100 }}
-            onHoverStart={() => setIsFlipped(true)}
-            onHoverEnd={() => setIsFlipped(false)}
+            onHoverStart={() => !isMobile && setIsFlipped(true)}
+            onHoverEnd={() => !isMobile && setIsFlipped(false)}
           >
             {/* Front side */}
             <div className="absolute inset-0 [backface-visibility:hidden]">
@@ -940,7 +909,7 @@ function ProjectsWidget({ className = "" }) {
                           : "text-gray-400 hover:text-gray-200"
                       }`}
                     >
-                      Cards
+                      Webs
                     </button>
                     <button
                       onClick={() => setViewMode("gallery")}
